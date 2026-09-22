@@ -1,0 +1,113 @@
+# Configuración centralizada del sistema AirGuard
+# Se carga al inicio en todos los componentes
+
+orchestrator:
+  weights:
+    w_vision: 0.35
+    w_gas: 0.40
+    w_pm: 0.25
+  thresholds:
+    r_prealert: 0.45
+    r_alert_visual: 0.65
+    r_alert_chemical: 0.75
+  hysteresis:
+    down: 0.08
+    up: 0.03
+  safety_overrides:
+    co_critical_ppm: 50.0
+    co_slope_critical_ppm_min: 5.0
+    pm25_slope_critical_ug_m3_min: 50.0
+    voc_slope_critical_idx_min: 100.0
+    voc_index_critical: 350
+  timing:
+    prealert_min_duration_sec: 30
+    alert_visual_max_duration_sec: 300
+    max_sensor_age_sec: 10.0
+  persistence:
+    db_path: "/var/lib/airguard/orchestrator.db"
+    wal_mode: true
+
+vision:
+  model: "yolov8n"
+  img_size: 512
+  classes: ["smoke", "fire"]
+  inference:
+    conf_thres: 0.35
+    iou_thres: 0.45
+    temporal_window: 10
+    temporal_threshold: 5
+  roi_norm: null
+  training:
+    epochs: 100
+    batch_size: 16
+    lr0: 0.01
+    patience: 20
+    augment:
+      mosaic: 1.0
+      mixup: 0.1
+      hsv_h: 0.015
+      hsv_s: 0.7
+      hsv_v: 0.4
+      degrees: 0.0
+      translate: 0.1
+      scale: 0.5
+      flipud: 0.0
+      fliplr: 0.5
+
+gases:
+  model_path: "/etc/airguard/models/experto2_production.onnx"
+  calib_path: "/etc/airguard/models/experto2_production.calib.joblib"
+  extractor_path: "/etc/airguard/models/extractor.joblib"
+  feature_config:
+    co_slope_window_sec: 120
+    pm_slope_window_sec: 120
+    voc_slope_window_sec: 60
+    temp_delta_window_sec: 300
+    hr_threshold: 80.0
+    hr_max_correction: 0.45
+
+context:
+  fog:
+    hr_threshold: 90.0
+    temp_threshold: 15.0
+    pm_ratio_max: 0.3
+    vision_weight_mult: 0.4
+  dust:
+    hr_threshold: 40.0
+    pm_ratio_min: 0.7
+    pm_weight_mult: 0.6
+  condensation:
+    night_hours: [22, 23, 0, 1, 2, 3, 4, 5]
+    hr_threshold: 85.0
+    vision_weight_mult: 0.7
+  bayesian:
+    enabled: true
+    prior_fog: 0.15
+    prior_dust: 0.10
+    prior_condensation: 0.08
+
+mqtt:
+  broker: "mosquitto"
+  port: 8883
+  ca_cert: "/etc/airguard/certs/ca.crt"
+  client_cert: "/etc/airguard/certs/client.crt"
+  client_key: "/etc/airguard/certs/client.key"
+  topic_prefix: "airguard"
+  qos: 1
+  keepalive: 30
+  schema_version: "1.0.0"
+  nonce_window_sec: 300
+
+hardware:
+  sensors:
+    pms5003: "/dev/ttyUSB0"
+    sgp40: "i2c:0x59"
+    dart_co: "/dev/ttyUSB1"
+    bme280: "i2c:0x76"
+  camera:
+    rtsp_url: "rtsp://camera:554/stream"
+    fps: 2
+  hailo:
+    hef_path: "/etc/airguard/models/yolov8n_smoke.hef"
+  security:
+    atecc608b: "i2c:0x60"

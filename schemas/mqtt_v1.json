@@ -1,0 +1,105 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "AirGuard MQTT Payload v1.0.0",
+  "type": "object",
+  "required": ["schema_version", "device_id", "timestamp", "nonce", "payload"],
+  "properties": {
+    "schema_version": { "const": "1.0.0" },
+    "device_id": { "type": "string", "pattern": "^[a-zA-Z0-9_-]{1,64}$" },
+    "timestamp": { "type": "number", "description": "Unix epoch seconds UTC" },
+    "nonce": { "type": "string", "description": "Random 16-byte hex, anti-replay" },
+    "hmac": { "type": "string", "description": "HMAC-SHA256 of payload with device key" },
+    "payload": {
+      "type": "object",
+      "required": ["state", "risk_score", "experts"],
+      "properties": {
+        "state": { "enum": ["NORMAL", "PRE_ALERTA", "ALERTA_VISUAL", "ALERTA_QUIMICA", "DEGRADADO"] },
+        "risk_score": { "type": "number", "minimum": 0, "maximum": 1 },
+        "acked": { "type": "boolean" },
+        "experts": {
+          "type": "object",
+          "properties": {
+            "vision": {
+              "type": "object",
+              "properties": {
+                "smoke_detected": { "type": "boolean" },
+                "confidence": { "type": "number", "minimum": 0, "maximum": 1 },
+                "detections": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "class": { "enum": ["smoke", "fire", "person"] },
+                      "confidence": { "type": "number" },
+                      "bbox": { "type": "array", "items": { "type": "number" }, "minItems": 4, "maxItems": 4 }
+                    },
+                    "required": ["class", "confidence", "bbox"]
+                  }
+                }
+              },
+              "required": ["smoke_detected", "confidence"]
+            },
+            "gases": {
+              "type": "object",
+              "properties": {
+                "probabilities": {
+                  "type": "array",
+                  "items": { "type": "number" },
+                  "minItems": 4,
+                  "maxItems": 4
+                },
+                "predicted_class": { "enum": ["normal", "quema_organica", "humo_toxico", "polvo_niebla"] },
+                "confidence": { "type": "number" },
+                "shap_top5": {
+                  "type": "array",
+                  "items": { "type": "object", "properties": { "feature": { "type": "string" }, "value": { "type": "number" } } }
+                }
+              },
+              "required": ["probabilities", "predicted_class", "confidence"]
+            },
+            "context": {
+              "type": "object",
+              "properties": {
+                "condition": { "enum": ["normal", "fog", "dust", "condensation"] },
+                "probabilities": {
+                  "type": "object",
+                  "properties": {
+                    "fog": { "type": "number" },
+                    "dust": { "type": "number" },
+                    "condensation": { "type": "number" },
+                    "normal": { "type": "number" }
+                  }
+                },
+                "weight_multipliers": {
+                  "type": "object",
+                  "properties": {
+                    "w_vision": { "type": "number" },
+                    "w_gas": { "type": "number" },
+                    "w_pm": { "type": "number" }
+                  }
+                }
+              }
+            }
+          },
+          "required": ["vision", "gases", "context"]
+        },
+        "safety_overrides": {
+          "type": "object",
+          "properties": {
+            "force_chemical_alert": { "type": "boolean" },
+            "suppress_vision_alert": { "type": "boolean" },
+            "require_gas_confirmation": { "type": "boolean" },
+            "elevate_pm_weight": { "type": "boolean" }
+          }
+        },
+        "location": {
+          "type": "object",
+          "properties": {
+            "lat": { "type": "number", "minimum": -90, "maximum": 90 },
+            "lon": { "type": "number", "minimum": -180, "maximum": 180 }
+          }
+        }
+      }
+    }
+  }
+}

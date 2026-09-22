@@ -1,0 +1,83 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+venv/
+env/
+ENV/
+.venv
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Data directories (large files)
+data/raw/
+data/unprocessed/
+data/peru_field_data/
+data/processed/iot_smoke_clean.csv
+data/processed/dalton_sample.csv
+data/processed/experto2_pretrain.csv
+data/yolo_unified/images/
+data/yolo_unified/labels/
+data/hard_negatives/mined/
+data/hard_negatives/manual/
+data/hard_negatives/validation/
+
+# Model weights and artifacts
+*.pt
+*.onnx
+*.hef
+*.joblib
+*.pkl
+models/
+runs/
+*.json
+!schemas/*.json
+!config.yaml
+
+# Logs
+*.log
+logs/
+wandb/
+mlruns/
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# IDE/Editor specific
+*.swp
+*.swo
+*~
+
+# Python
+*.egg-info/
+dist/
+build/
+*.egg
+pip-wheel-metadata/
+
+# Testing
+.coverage
+htmlcov/
+.pytest_cache/
+.tox/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Temporary
+tmp/
+temp/
+*.tmp
