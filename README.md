@@ -8,9 +8,9 @@ Sistema multimodal de detección de incendios y humos tóxicos con tres expertos
 
 | Experto | Modelo | Estado | Artefacto Principal |
 |---------|--------|--------|---------------------|
-| **Experto 1: Visión** | YOLOv8n (512×512) | 🟡 Epoch 100/100 | `best.onnx` (11.7 MB) |
-| **Experto 2: Gases** | XGBoost + Calibración Isotónica | ✅ Producción | `experto2_production.onnx` |
-| **Experto 3: Contexto** | Reglas + Bayesiano | ✅ Listo | `context.py` |
+| **Experto 1: Visión** | YOLOv8n (512×512) |  Epoch 100/100 | `best.onnx` (11.7 MB) |
+| **Experto 2: Gases** | XGBoost + Calibración Isotónica |  Producción | `experto2_production.onnx` |
+| **Experto 3: Contexto** | Reglas + Bayesiano |  Listo | `context.py` |
 
 ## Hardware Objetivo
 
@@ -34,9 +34,9 @@ Sistema multimodal de detección de incendios y humos tóxicos con tres expertos
 |---------|--------|---------------------|
 | **YOLO mAP@50** | ≥ 0.82 | 0.607 (epoch 100) |
 | **YOLO Recall** | ≥ 0.90 | 0.516 |
-| **Gases F1-macro (prod)** | ≥ 0.88 | **0.999** ✅ |
-| **Gases Recall tóxico** | ≥ 0.95 | **1.000** ✅ |
-| **Inferencia ONNX CPU** | < 100ms | **18.8 ms** (53 FPS) ✅ |
+| **Gases F1-macro (prod)** | ≥ 0.88 | **0.999**  |
+| **Gases Recall tóxico** | ≥ 0.95 | **1.000**  |
+| **Inferencia ONNX CPU** | < 100ms | **18.8 ms** (53 FPS)  |
 
 > **Nota:** El modelo de visión requiere fine-tuning con datos locales (Perú) y hard negatives para alcanzar targets de producción.
 
@@ -65,9 +65,9 @@ airguard-monitor/
 
 | Modelo | Archivo | Estado |
 |--------|---------|--------|
-| **YOLOv8n epoch 100** | `runs/detect/.../best.onnx` | 🟡 Requiere fine-tuning |
-| **XGBoost Producción** | `models/experto2_production/experto2_production.onnx` | ✅ **Deploy-ready** |
-| **XGBoost Binario** | `models/experto2_production/experto2_binary_calibrated.joblib` | ✅ |
+| **YOLOv8n epoch 100** | `runs/detect/.../best.onnx` |  Requiere fine-tuning |
+| **XGBoost Producción** | `models/experto2_production/experto2_production.onnx` |  **Deploy-ready** |
+| **XGBoost Binario** | `models/experto2_production/experto2_binary_calibrated.joblib` |  |
 
 ### XGBoost Producción (Sin Data Leakage)
 - **38 features causales** (sin rolling windows que usan futuro)
@@ -143,12 +143,12 @@ Estructura en `data/peru_field_data/fase1_14dias/`:
 
 | Componente | Estado |
 |------------|--------|
-| Experto 1 (Visión) | 🟡 Epoch 100/100 - requiere fine-tuning Perú |
-| Experto 2 Producción | ✅ **Deploy-ready** |
-| Experto 3 Contexto | ✅ Listo |
-| Orquestador FSM | ✅ 9/9 tests passing |
-| MQTT + Seguridad | ✅ v1.0.0 |
-| Edge Deployment | ✅ ONNX + artifacts |
+| Experto 1 (Visión) |  Epoch 100/100 - requiere fine-tuning Perú |
+| Experto 2 Producción |  **Deploy-ready** |
+| Experto 3 Contexto |  Listo |
+| Orquestador FSM |  9/9 tests passing |
+| MQTT + Seguridad |  v1.0.0 |
+| Edge Deployment |  ONNX + artifacts |
 
 ## Próximos Pasos
 

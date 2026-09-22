@@ -106,21 +106,21 @@ def download_file(url: str, dest: Path, chunk_size: int = 8192) -> bool:
                     pbar.update(len(chunk))
         return True
     except Exception as e:
-        print(f"  ❌ Error descargando {url}: {e}")
+        print(f"   Error descargando {url}: {e}")
         return False
 
 
 def clone_repo(url: str, dest: Path) -> bool:
     """Clona repositorio Git (shallow para ahorrar espacio)."""
     if dest.exists():
-        print(f"  📁 Repo ya existe en {dest}, actualizando...")
+        print(f"   Repo ya existe en {dest}, actualizando...")
         run_cmd(["git", "pull"], cwd=dest, check=False)
         return True
     try:
         run_cmd(["git", "clone", "--depth", "1", url, str(dest)])
         return True
     except Exception as e:
-        print(f"  ❌ Error clonando {url}: {e}")
+        print(f"   Error clonando {url}: {e}")
         return False
 
 
@@ -163,13 +163,13 @@ def prepare_iot_smoke() -> Path:
     else:
         csv_path = repo_dir / repo_info["csv_file"]
 
-    print(f"  📄 Leyendo CSV: {csv_path}")
+    print(f"   Leyendo CSV: {csv_path}")
     df = pd.read_csv(csv_path)
     print(f"     Shape original: {df.shape}")
     print(f"     Columnas: {list(df.columns)}")
 
     # Limpieza y validación
-    print("  🧹 Limpiando...")
+    print("   Limpiando...")
 
     # 1. Renombrar columnas a formato estándar
     rename_map = {
@@ -285,7 +285,7 @@ def prepare_iot_smoke() -> Path:
     # 7. Guardar
     out_path = PROCESSED_DIR / "iot_smoke_clean.csv"
     df_clean.to_csv(out_path, index=False)
-    print(f"  ✅ Guardado: {out_path} ({len(df_clean)} filas)")
+    print(f"   Guardado: {out_path} ({len(df_clean)} filas)")
 
     # 8. Split temporal 70/15/15
     n = len(df_clean)
@@ -344,9 +344,9 @@ def prepare_dalton() -> Path:
     sites = pd.read_csv(meta_dir / "Site_wise_details.csv")
     occupants = pd.read_csv(meta_dir / "Occupants.csv")
 
-    print(f"  📊 Sitios: {len(sites)}")
-    print(f"  📊 Anotaciones: {len(annotations)}")
-    print(f"  📊 Ocupantes: {len(occupants)}")
+    print(f"   Sitios: {len(sites)}")
+    print(f"   Anotaciones: {len(annotations)}")
+    print(f"   Ocupantes: {len(occupants)}")
 
     # Leer datos procesados (ya limpios, por sitio/fecha)
     proc_dir = repo_dir / repo_info["processed_dir"]
@@ -364,13 +364,13 @@ def prepare_dalton() -> Path:
                     df["date"] = date_dir.name
                     all_dfs.append(df)
                 except Exception as e:
-                    print(f"    ⚠️ Error leyendo {csv_file}: {e}")
+                    print(f"     Error leyendo {csv_file}: {e}")
 
     if not all_dfs:
         raise RuntimeError("No se pudieron leer datos procesados de Dalton")
 
     merged = pd.concat(all_dfs, ignore_index=True)
-    print(f"  📄 Muestras cargadas: {len(merged)}")
+    print(f"   Muestras cargadas: {len(merged)}")
 
     # Normalizar columnas
     # Columnas típicas: ts, T, H, PMS1, PMS2_5, PMS10, CO2, NO2, CO, VoC, C2H5OH, ID, Loc, Customer, Ph, Valid, Valid_CO2, bkps
@@ -430,7 +430,7 @@ def prepare_dalton() -> Path:
 
     out_path = PROCESSED_DIR / "dalton_sample.csv"
     merged_sample.to_csv(out_path, index=False)
-    print(f"  ✅ Guardado muestra: {out_path} ({len(merged_sample)} filas)")
+    print(f"   Guardado muestra: {out_path} ({len(merged_sample)} filas)")
 
     meta = {
         "source": "prasenjit52282/dalton-dataset",
@@ -680,7 +680,7 @@ def create_unified_training_data() -> dict:
     unified = iot.copy()
     out_path = PROCESSED_DIR / "experto2_pretrain.csv"
     unified.to_csv(out_path, index=False)
-    print(f"  ✅ Unified pre-train: {out_path} ({len(unified)} filas)")
+    print(f"   Unified pre-train: {out_path} ({len(unified)} filas)")
 
     return {"pretrain": out_path, "iot_train": iot_path}
 

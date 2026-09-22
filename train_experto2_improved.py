@@ -35,14 +35,14 @@ try:
     HAS_IMBLEARN = True
 except ImportError:
     HAS_IMBLEARN = False
-    print("⚠️ imbalanced-learn no instalado. SMOTE no disponible.")
+    print(" imbalanced-learn no instalado. SMOTE no disponible.")
 
 try:
     import optuna
     HAS_OPTUNA = True
 except ImportError:
     HAS_OPTUNA = False
-    print("⚠️ Optuna no instalado. Optimización Bayesiana no disponible.")
+    print(" Optuna no instalado. Optimización Bayesiana no disponible.")
 
 warnings.filterwarnings("ignore")
 
@@ -168,7 +168,7 @@ def load_and_prepare(csv_path: Path) -> Tuple[pd.DataFrame, np.ndarray, np.ndarr
         df["label_id"] = df["label"].astype(int)
     
     # Features avanzadas
-    print("🔧 Generando features avanzadas...")
+    print(" Generando features avanzadas...")
     df = add_advanced_features(df)
     
     # Separar features y labels
@@ -397,9 +397,9 @@ def export_model(calibrated, output_path: Path, feature_names: List[str]) -> Non
         "feature_names": feature_names,
     }, calib_path)
     
-    print(f"  ✅ Modelo: {output_path}")
-    print(f"  ✅ JSON: {output_path.with_suffix('.json')}")
-    print(f"  ✅ Calibradores: {calib_path}")
+    print(f"   Modelo: {output_path}")
+    print(f"   JSON: {output_path.with_suffix('.json')}")
+    print(f"   Calibradores: {calib_path}")
 
 
 def save_artifacts(calibrated, imputer, feature_names, out_dir: Path) -> None:
@@ -434,22 +434,22 @@ def main():
     np.random.seed(args.seed)
     
     print("="*60)
-    print("🧪 ENTRENANDO EXPERTO 2 MEJORADO: GASES Y PARTÍCULAS")
+    print(" ENTRENANDO EXPERTO 2 MEJORADO: GASES Y PARTÍCULAS")
     print("="*60)
     
     # 1. Cargar y preparar
-    print(f"📂 Cargando: {args.data}")
+    print(f" Cargando: {args.data}")
     X_df, y, y_binary = load_and_prepare(args.data)
     
     # 2. Imputar NaN
-    print("🧹 Imputando NaN...")
+    print(" Imputando NaN...")
     imputer = SimpleImputer(strategy="median")
     X = imputer.fit_transform(X_df.values.astype(np.float32))
     feature_names = X_df.columns.tolist()
     
     # 3. Pesos de clase
     class_weights = get_class_weights(y)
-    print(f"⚖️ Class weights: {class_weights}")
+    print(f" Class weights: {class_weights}")
     
     # 4. Split estratificado (para 4-clases) + temporal hold-out
     X_trainval, X_test, y_trainval, y_test, y_bin_trainval, y_bin_test = train_test_split(
@@ -466,7 +466,7 @@ def main():
     
     # 5. SMOTE opcional (solo en train, DESPUÉS del split)
     if args.use_smote and HAS_IMBLEARN:
-        print("🔄 Aplicando SMOTE solo en train...")
+        print(" Aplicando SMOTE solo en train...")
         smote = SMOTE(random_state=args.seed, k_neighbors=3)
         X_train, y_train = smote.fit_resample(X_train, y_train)
         print(f"   Después SMOTE: {pd.Series(y_train).map({v:k for k,v in LABEL_MAP.items()}).value_counts().to_dict()}")
@@ -478,11 +478,11 @@ def main():
     class_weights = get_class_weights(y_train)
     
     # 7. Entrenar con CV
-    print("🚀 Entrenando XGBoost con CV estratificada...")
+    print(" Entrenando XGBoost con CV estratificada...")
     base_model, cv_scores = train_xgboost_cv(X_train, y_train, class_weights, n_splits=args.cv_folds)
     
     # 7b. Entrenar modelo binario fire/no-fire
-    print("🔥 Entrenando modelo binario fire/no-fire...")
+    print(" Entrenando modelo binario fire/no-fire...")
     bin_class_weights = get_class_weights(y_bin_train)
     bin_model = xgb.XGBClassifier(
         objective="binary:logistic",
@@ -510,11 +510,11 @@ def main():
     bin_calibrated = SimpleBinCalibrated(bin_model, iso_reg)
     
     # 8. Calibrar multiclase en conjunto de validación
-    print("⚖️ Calibrando isotónicamente...")
+    print(" Calibrando isotónicamente...")
     calibrated, _ = calibrate_isotonic(base_model, X_val, y_val)
     
     # 9. Evaluar en test
-    print("📊 Evaluando en test hold-out...")
+    print(" Evaluando en test hold-out...")
     metrics = compute_metrics(calibrated, X_test, y_test)
     reliability = reliability_diagram_data(calibrated, X_test, y_test)
     
@@ -548,9 +548,9 @@ def main():
     joblib.dump(bin_calibrated, out_dir / "experto2_binary_calibrated.joblib")
     
     print("\n" + "="*60)
-    print("✅ EXPERTO 2 MEJORADO COMPLETADO")
+    print(" EXPERTO 2 MEJORADO COMPLETADO")
     print("="*60)
-    print(f"📁 Artefactos en: {out_dir}")
+    print(f" Artefactos en: {out_dir}")
 
 
 if __name__ == "__main__":

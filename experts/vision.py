@@ -167,7 +167,7 @@ def prepare_yolo_dataset(
     }
     (output_dir / "data.yaml").write_text(yaml.dump(data_yaml))
 
-    print(f"✅ Dataset YOLO listo en {output_dir}")
+    print(f" Dataset YOLO listo en {output_dir}")
     return output_dir / "data.yaml"
 
 
@@ -205,7 +205,7 @@ def train_yolo(data_yaml: Path, config: VisionConfig, run_name: str = "exp") -> 
     )
 
     best_pt = Path(results.save_dir) / "weights" / "best.pt"
-    print(f"✅ Entrenamiento completado. Mejor modelo: {best_pt}")
+    print(f" Entrenamiento completado. Mejor modelo: {best_pt}")
     return best_pt
 
 
@@ -225,7 +225,7 @@ def export_onnx(best_pt: Path, config: VisionConfig, output_path: Path) -> Path:
     )
     src = Path(onnx_path)
     shutil.move(str(src), str(output_path))
-    print(f"✅ ONNX exportado a {output_path}")
+    print(f" ONNX exportado a {output_path}")
     return output_path
 
 
@@ -264,9 +264,9 @@ print("HEF guardado en {hef_path}")
         )
         if result.returncode != 0:
             raise RuntimeError(f"Compilación Hailo falló: {result.stderr}")
-        print(f"✅ HEF compilado: {hef_path}")
+        print(f" HEF compilado: {hef_path}")
     except FileNotFoundError:
-        print("⚠️ Hailo SDK no instalado. Saltando compilación HEF.")
+        print(" Hailo SDK no instalado. Saltando compilación HEF.")
         print(f"   Instala hailo-dataflow-compiler y ejecuta manualmente:")
         print(f"   python {script_path}")
 
@@ -429,7 +429,7 @@ def mine_hard_negatives(
     for src in video_sources:
         cap = cv2.VideoCapture(src)
         if not cap.isOpened():
-            print(f"⚠️ No se pudo abrir: {src}")
+            print(f" No se pudo abrir: {src}")
             continue
 
         frame_count = 0
@@ -462,9 +462,9 @@ def mine_hard_negatives(
                 fname = output_dir / f"hardneg_{src.replace('/', '_')}_{saved:04d}.jpg"
                 cv2.imwrite(str(fname), frame)
                 saved += 1
-                print(f"  🎯 Hard negative #{saved}: conf={scores[smoke_mask].max():.3f}")
+                print(f"   Hard negative #{saved}: conf={scores[smoke_mask].max():.3f}")
 
         cap.release()
 
-    print(f"✅ Minados {saved} hard negatives en {output_dir}")
+    print(f" Minados {saved} hard negatives en {output_dir}")
     return saved

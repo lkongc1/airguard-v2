@@ -35,7 +35,7 @@ def train_yolo_optimized(
         vram_gb = torch.cuda.get_device_properties(0).total_memory / (1024**3)
         print(f"GPU VRAM: {vram_gb:.1f} GB")
         if vram_gb < 8:
-            print("⚠️ VRAM < 8GB - Aplicando optimizaciones agresivas")
+            print(" VRAM < 8GB - Aplicando optimizaciones agresivas")
             if batch_size > 16:
                 batch_size = 16
             if img_size > 512:
@@ -108,7 +108,7 @@ def main():
     args = parser.parse_args()
     
     print("="*60)
-    print("🚀 ENTRENANDO YOLOv8n - DETECCIÓN DE HUMO (7GB VRAM)")
+    print(" ENTRENANDO YOLOv8n - DETECCIÓN DE HUMO (7GB VRAM)")
     print("="*60)
     
     results = train_yolo_optimized(
@@ -123,16 +123,16 @@ def main():
     )
     
     # Exportar a ONNX
-    print("\n📦 Exportando a ONNX...")
+    print("\n Exportando a ONNX...")
     model = YOLO(f"{args.project}/{args.name}/weights/best.pt")
     onnx_path = model.export(format="onnx", imgsz=args.imgsz, opset=15, simplify=True, dynamic=True)
-    print(f"✅ ONNX exportado: {onnx_path}")
+    print(f" ONNX exportado: {onnx_path}")
     
     print("\n" + "="*60)
-    print("✅ ENTRENAMIENTO COMPLETADO")
+    print(" ENTRENAMIENTO COMPLETADO")
     print("="*60)
-    print(f"📁 Modelo: {args.project}/{args.name}/weights/best.pt")
-    print(f"📁 ONNX: {onnx_path}")
+    print(f" Modelo: {args.project}/{args.name}/weights/best.pt")
+    print(f" ONNX: {onnx_path}")
 
 
 if __name__ == "__main__":

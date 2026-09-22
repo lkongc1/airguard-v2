@@ -128,7 +128,7 @@ def build_feature_matrix(df: pd.DataFrame) -> Tuple[np.ndarray, np.ndarray, np.n
     available = [c for c in feature_map.keys() if c in df.columns]
     missing = [c for c in feature_map.keys() if c not in df.columns]
     if missing:
-        print(f"  ⚠️ Features faltantes (se imputarán): {missing}")
+        print(f"   Features faltantes (se imputarán): {missing}")
     
     X = df[available].copy()
     X.columns = [feature_map[c] for c in available]
@@ -260,7 +260,7 @@ def compute_metrics(
 
     # Asegurar que y_proba tenga 4 columnas (una por clase)
     if y_proba.shape[1] != 4:
-        print(f"  ⚠️ y_proba shape: {y_proba.shape}, esperado (n, 4)")
+        print(f"   y_proba shape: {y_proba.shape}, esperado (n, 4)")
         if y_proba.shape[1] < 4:
             pad = np.zeros((y_proba.shape[0], 4 - y_proba.shape[1]))
             y_proba = np.hstack([y_proba, pad])
@@ -350,12 +350,12 @@ def export_onnx(calibrated, output_path: Path, feature_names: List[str]) -> None
         # Para compatibilidad, también guardar como JSON
         base_estimator.save_model(str(output_path.with_suffix(".json")))
         
-        print(f"  ✅ Modelo XGBoost guardado: {output_path}")
-        print(f"  ✅ Modelo JSON: {output_path.with_suffix('.json')}")
+        print(f"   Modelo XGBoost guardado: {output_path}")
+        print(f"   Modelo JSON: {output_path.with_suffix('.json')}")
         
     except Exception as e:
-        print(f"  ⚠️ Exportación nativa falló: {e}")
-        print("  🔄 Intentando con onnxmltools...")
+        print(f"   Exportación nativa falló: {e}")
+        print("   Intentando con onnxmltools...")
         try:
             import onnxmltools
             from onnxmltools.convert import convert_xgboost
@@ -364,10 +364,10 @@ def export_onnx(calibrated, output_path: Path, feature_names: List[str]) -> None
             initial_type = [("float_input", FloatTensorType([None, len(feature_names)]))]
             onnx_model = convert_xgboost(base_estimator, initial_types=initial_type)
             onnxmltools.utils.save_model(onnx_model, str(output_path))
-            print(f"  ✅ ONNX via onnxmltools: {output_path}")
+            print(f"   ONNX via onnxmltools: {output_path}")
         except Exception as e2:
-            print(f"  ❌ onnxmltools también falló: {e2}")
-            print("  💡 Guardando solo modelo XGBoost nativo (.json) para inferencia con xgboost runtime")
+            print(f"   onnxmltools también falló: {e2}")
+            print("   Guardando solo modelo XGBoost nativo (.json) para inferencia con xgboost runtime")
             base_estimator.save_model(str(output_path.with_suffix(".json")))
 
     # Guardar calibradores para runtime edge
@@ -378,7 +378,7 @@ def export_onnx(calibrated, output_path: Path, feature_names: List[str]) -> None
         "feature_names": feature_names,
     }, calib_path)
 
-    print(f"  ✅ Calibradores: {calib_path}")
+    print(f"   Calibradores: {calib_path}")
 
 
 class SimpleBinCalibrated:
@@ -433,23 +433,23 @@ def main():
     np.random.seed(args.seed)
 
     print("="*60)
-    print("🧪 ENTRENANDO EXPERTO 2: GASES Y PARTÍCULAS")
+    print(" ENTRENANDO EXPERTO 2: GASES Y PARTÍCULAS")
     print("="*60)
 
     # 1. Cargar datos
-    print(f"📂 Cargando: {args.data}")
+    print(f" Cargando: {args.data}")
     df = load_and_validate(args.data)
     print(f"   {len(df)} muestras")
     print(f"   Label dist: {df['label'].value_counts().to_dict()}")
     print(f"   Fire binary: {df['fire_binary'].value_counts().to_dict()}")
 
     # 2. Features
-    print("🔧 Construyendo features...")
+    print(" Construyendo features...")
     X, y, y_binary = build_feature_matrix(df)
     print(f"   X shape: {X.shape}")
 
     # 3. Imputar
-    print("🧹 Imputando NaN...")
+    print(" Imputando NaN...")
     X, imputer = impute_nan(X, strategy="median")
 
     # 4. Split temporal: train/val/calib/test
@@ -465,15 +465,15 @@ def main():
     print(f"   Train: {len(X_train)}, Val: {len(X_val)}, Calib: {len(X_calib)}, Test: {len(X_test)}")
 
     # 5. Entrenar XGBoost base (multiclase 4)
-    print("🚀 Entrenando XGBoost (4 clases)...")
+    print(" Entrenando XGBoost (4 clases)...")
     base_model = train_xgboost(X_train, y_train, X_val, y_val, use_early_stopping=True)
 
     # 6. Calibrar en conjunto de calibración separado
-    print("⚖️ Calibrando isotónicamente (conjunto dedicado)...")
+    print(" Calibrando isotónicamente (conjunto dedicado)...")
     calibrated, proba_calib = calibrate_isotonic(base_model, X_calib, y_calib)
 
     # 7. Evaluar en test
-    print("📊 Evaluando en test hold-out...")
+    print(" Evaluando en test hold-out...")
     metrics = compute_metrics(calibrated, X_test, y_test)
     reliability = reliability_diagram_data(calibrated, X_test, y_test)
 
@@ -493,7 +493,7 @@ def main():
         json.dump(reliability, f, indent=2)
 
     # 9. Exportar ONNX + calibradores
-    print("💾 Exportando a ONNX...")
+    print(" Exportando a ONNX...")
     export_onnx(calibrated, args.out, FEATURE_NAMES)
 
     # 10. Guardar imputer y config
@@ -501,7 +501,7 @@ def main():
     save_extractor_config(out_dir / "extractor.joblib")
 
     # 11. Guardar también modelo binario fire/no-fire (para umbral rápido)
-    print("🔥 Entrenando modelo binario fire/no-fire...")
+    print(" Entrenando modelo binario fire/no-fire...")
     bin_model = xgb.XGBClassifier(
         objective="binary:logistic",
         n_estimators=400,
@@ -532,9 +532,9 @@ def main():
     joblib.dump(bin_calibrated, out_dir / "experto2_binary_calibrated.joblib")
 
     print("\n" + "="*60)
-    print("✅ EXPERTO 2 COMPLETADO")
+    print(" EXPERTO 2 COMPLETADO")
     print("="*60)
-    print(f"📁 Artefactos en: {out_dir}")
+    print(f" Artefactos en: {out_dir}")
     print(f"   - {args.out.name} (ONNX base 4-clase)")
     print(f"   - {args.out.stem}.calib.joblib (calibradores isotónicos)")
     print(f"   - imputer.joblib (imputador NaN)")

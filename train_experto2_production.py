@@ -148,7 +148,7 @@ def load_and_prepare(csv_path: Path) -> Tuple[pd.DataFrame, np.ndarray, np.ndarr
         df["label_id"] = df["label"].astype(int)
     
     # Features causales
-    print("🔧 Generando features causales (sin leakage)...")
+    print(" Generando features causales (sin leakage)...")
     df = add_causal_features(df)
     
     # Separar features y labels
@@ -355,8 +355,8 @@ def export_model(calibrated, output_path: Path) -> None:
         "calibrators": calibrated.calibrators,
         "classes": calibrated.classes_,
     }, calib_path)
-    print(f"  ✅ Modelo: {output_path}")
-    print(f"  ✅ Calibradores: {calib_path}")
+    print(f"   Modelo: {output_path}")
+    print(f"   Calibradores: {calib_path}")
 
 
 def main():
@@ -371,11 +371,11 @@ def main():
     np.random.seed(args.seed)
     
     print("="*60)
-    print("🏭 ENTRENANDO EXPERTO 2 PRODUCCIÓN (SIN LEAKAGE)")
+    print(" ENTRENANDO EXPERTO 2 PRODUCCIÓN (SIN LEAKAGE)")
     print("="*60)
     
     # Cargar
-    print(f"📂 Cargando: {args.data}")
+    print(f" Cargando: {args.data}")
     X_df, y, y_binary = load_and_prepare(args.data)
     print(f"   {len(X_df)} muestras")
     print(f"   Distribución: {pd.Series(y).map({v:k for k,v in LABEL_MAP.items()}).value_counts().to_dict()}")
@@ -387,7 +387,7 @@ def main():
     
     # Pesos de clase
     class_weights = get_class_weights(y)
-    print(f"⚖️ Class weights: {class_weights}")
+    print(f" Class weights: {class_weights}")
     
     # Split estratificado
     X_trainval, X_test, y_trainval, y_test = train_test_split(
@@ -403,15 +403,15 @@ def main():
     class_weights = get_class_weights(y_train)
     
     # Entrenar con CV
-    print("🚀 Entrenando XGBoost con CV estratificada...")
+    print(" Entrenando XGBoost con CV estratificada...")
     base_model, cv_scores = train_xgboost_cv(X_train, y_train, class_weights, n_splits=args.cv_folds)
     
     # Calibrar en val
-    print("⚖️ Calibrando isotónicamente...")
+    print(" Calibrando isotónicamente...")
     calibrated = calibrate_isotonic(base_model, X_val, y_val)
     
     # Evaluar en test
-    print("📊 Evaluando en test hold-out...")
+    print(" Evaluando en test hold-out...")
     metrics = compute_metrics(calibrated, X_test, y_test)
     
     print(f"\n   F1-macro: {metrics['f1_macro']:.4f}")
@@ -437,7 +437,7 @@ def main():
     joblib.dump({"config": config_dict}, out_dir / "extractor.joblib")
     
     print("\n" + "="*60)
-    print("✅ EXPERTO 2 PRODUCCIÓN COMPLETADO")
+    print(" EXPERTO 2 PRODUCCIÓN COMPLETADO")
     print("="*60)
 
 
